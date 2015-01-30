@@ -1,28 +1,47 @@
 (ns excel.core
-  (:require [om-bootstrap.button :as b]
+  (:require [om-bootstrap.table :refer [table]]
+            [om-bootstrap.button :as b]
+            [om-bootstrap.panel :as p]
+            [om-bootstrap.nav :as n]
             [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]))
+            [om.dom :as d :include-macros true]))
 
-(defn widget [data owner]
+(def app-state
+  (atom
+    {:tab [
+              ["" "" "" "" ""]
+              ["" "" "" "" ""]
+              ["" "" "" "" ""]
+              ["" "" "" "" ""]
+              ["" "" "" "" ""]
+             ]}))
+
+(defn tableau [data owner]
   (reify
     om/IRender
     (render [this]
-      (dom/h1 nil (:text data)))))
+  (p/panel (merge {:header (dom/h3 "Panel title")}
+                  (when style {:bs-style style}))
+           "Panel content")
+)))
 
-(n/navbar
- {:brand (d/a {:href "#"}
-              "Navbar")}
- (n/nav
-  {:collapsible? true}
-  (n/nav-item {:key 1 :href "#"} "Link")
-  (n/nav-item {:key 2 :href "#"} "Link")
-  (b/dropdown {:key 3, :title "Dropdown"}
-              (b/menu-item {:key 1} "Action")
-              (b/menu-item {:key 2} "Another action")
-              (b/menu-item {:key 3} "Something else here")
-              (b/menu-item {:divider? true})
-              (b/menu-item {:key 4} "Separated link"))))
+(defn tab-view [app owner]
+  (reify
+    om/IRender
+    (render [_]
+     (table {:striped? true :bordered? true :condensed? true :hover? true}
+             (d/thead "thead"
+              (apply d/tr "trhead"
+               (d/td "th0" "#")
+               (map-indexed (fn [n item]
+                              (let [col (+ 1 n)]
+                              (d/th (str "th" col) col))) (first (:tab app)))))
+              (apply d/tbody "tbody"
+               (map-indexed (fn [n r]
+                (let [row (+ 1 n)]
+                (apply d/tr (str "tr" n)
+                 (d/td (str row "0") row)
+                 (map-indexed (fn [n2 c] (d/td (str "td" row) c)) r)))) (:tab app)))))))
 
-(om/root widget
-         {:text "Hello world!"}
-         {:target (. js/document (getElementById "app"))})
+(om/root tab-view app-state
+  {:target (. js/document (getElementById "tab"))})

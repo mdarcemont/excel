@@ -10,6 +10,7 @@
                  [racehub/om-bootstrap "0.3.4"]]
   :plugins [[lein-cljsbuild "1.0.4"]
             [org.bodil/lein-noderepl "0.1.11"]]
+  :source-paths ["src" "target/classes"]
   :cljsbuild {
   :builds [{:id "dev"
             :source-paths ["src"]
